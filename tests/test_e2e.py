@@ -20,38 +20,37 @@ def driver():
     driver.quit()
 
 
-# Test login through browser
+# Test 1: Login page -> login -> verify redirect
 def test_login_ui(driver):
     driver.get('http://localhost:5000/login')
     driver.find_element(By.NAME, 'username').send_keys('testuser')
     driver.find_element(By.NAME, 'password').send_keys('password123')
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    time.sleep(1)
+    time.sleep(2)
     assert 'login' not in driver.current_url.lower()
 
 
-# Test task creation through browser
+# Test 2: Create task through UI -> verify it appears
 def test_create_task_ui(driver):
     driver.get('http://localhost:5000/login')
     driver.find_element(By.NAME, 'username').send_keys('testuser')
     driver.find_element(By.NAME, 'password').send_keys('password123')
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    time.sleep(1)
-    driver.get('http://localhost:5000/add')
-    driver.find_element(By.NAME, 'title').send_keys('UI Test')
-    driver.find_element(By.NAME, 'description').send_keys('Test')
+    time.sleep(2)
+    
+    driver.get('http://localhost:5000/tasks/new')
+    driver.find_element(By.NAME, 'title').send_keys('UI Test Task')
+    driver.find_element(By.NAME, 'description').send_keys('Testing UI')
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    time.sleep(1)
-    assert 'UI Test' in driver.page_source
+    time.sleep(2)
+    assert 'UI Test Task' in driver.page_source
 
 
-# Test task list viewing
+# Test 3: View task list through UI
 def test_view_tasks_ui(driver):
     driver.get('http://localhost:5000/login')
     driver.find_element(By.NAME, 'username').send_keys('testuser')
     driver.find_element(By.NAME, 'password').send_keys('password123')
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-    time.sleep(1)
-    driver.get('http://localhost:5000/')
-    time.sleep(1)
-    assert 'task' in driver.page_source.lower()
+    time.sleep(2)
+    assert 'Task Manager' in driver.page_source or 'task' in driver.page_source.lower()

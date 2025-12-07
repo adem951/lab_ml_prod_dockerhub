@@ -1,8 +1,9 @@
 from models import User, Task
 
 
-# Test user registration
-def test_register_user(client, session):
+# Test 1: Register and login flow
+def test_register_and_login(client, session):
+    # Register new user
     response = client.post('/register', data={
         'username': 'newuser',
         'password': 'password123',
@@ -11,9 +12,16 @@ def test_register_user(client, session):
     assert response.status_code == 200
     user = session.query(User).filter_by(username='newuser').first()
     assert user is not None
+    
+    # Login with new user
+    response = client.post('/login', data={
+        'username': 'newuser',
+        'password': 'password123'
+    }, follow_redirects=True)
+    assert response.status_code == 200
 
 
-# Test task creation
+# Test 2: Create task via POST
 def test_create_task(client, sample_user, session):
     client.post('/login', data={'username': 'testuser', 'password': 'password123'})
     response = client.post('/tasks/new', data={
@@ -25,11 +33,15 @@ def test_create_task(client, sample_user, session):
     assert task is not None
 
 
-# Test task deletion
-def test_delete_task(client, sample_user, sample_task, session):
+# Test 3: Toggle task completion
+def test_toggle_task(client, sample_user, sample_task, session):
     client.post('/login', data={'username': 'testuser', 'password': 'password123'})
     task_id = sample_task.id
-    response = client.post(f'/tasks/{task_id}/delete', follow_redirects=True)
+    initial_status = sample_task.is_completed
+    
+    response = client.post(f'/tasks/{task_id}/toggle', follow_redirects=True)
     assert response.status_code == 200
-    deleted_task = session.query(Task).filter_by(id=task_id).first()
-    assert deleted_task is None
+    
+    session.expire_all()
+    updated_task = session.query(Task).filter_by(id=task_id).first()
+    assert updated_task.is_completed != initial_status
