@@ -2,7 +2,7 @@
 
 Flask application avec PostgreSQL, Docker et CI/CD vers DockerHub.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Local
 ```bash
@@ -22,7 +22,7 @@ python app.py
 docker-compose up --build
 ```
 
-## 🔐 GitHub Secrets (Settings → Secrets → Actions)
+## GitHub Secrets (Settings → Secrets → Actions)
 
 | Secret | Valeur |
 |--------|--------|
@@ -30,12 +30,12 @@ docker-compose up --build
 | `DOCKERHUB_TOKEN` | Token d'accès DockerHub |
 | `ENV_VARIABLES` | Voir `.env.example` |
 
-## 🔄 CI/CD Pipeline
+## CI/CD Pipeline
 
 **Pull Request / Push `dev`:** Lint + Tests + Build validation  
 **Push `main`:** Build + Push vers DockerHub
 
-## 📦 DockerHub
+## DockerHub
 ```bash
 docker pull <username>/taskmanager:latest
 ```
