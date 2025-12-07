@@ -118,23 +118,58 @@ docker-compose down
 
 ## CI/CD Pipeline with GitHub Actions
 
-This project uses GitHub Actions to automatically build and push Docker images to DockerHub.
+This project uses GitHub Actions to automatically test, build, and push Docker images to DockerHub.
 
 ### Setup GitHub Secrets
 
-1. Go to your GitHub repository
+1. Go to your GitHub repository: https://github.com/adem951/lab_ml_prod_dockerhub
 2. Navigate to **Settings** → **Secrets and variables** → **Actions**
-3. Add the following secrets:
-   - `DOCKERHUB_USERNAME`: Your DockerHub username
-   - `DOCKERHUB_TOKEN`: Your DockerHub access token
+3. Click **New repository secret** and add the following secrets:
 
-### Workflow
+#### Required Secrets:
 
-The GitHub Actions workflow (`.github/workflows/docker-publish.yml`) automatically:
-- Triggers on push to main/master branch
-- Builds the Docker image
-- Tags the image with branch name, SHA, and 'latest'
-- Pushes the image to DockerHub
+**`DOCKERHUB_USERNAME`**
+- Your DockerHub username
+- Example: `adem951`
+
+**`DOCKERHUB_TOKEN`**
+- Your DockerHub access token (created in DockerHub → Account Settings → Security)
+- Example: `dckr_pat_xxxxxxxxxxxxxxxxxxxxx`
+
+**`ENV_VARIABLES`**
+- Environment variables for testing (copy from `.env.example`)
+- Value should be the complete content of your `.env` file:
+```
+SECRET_KEY=test-secret-key-for-ci
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=taskmanager_test
+```
+
+### CI/CD Workflow Stages
+
+The GitHub Actions workflow (`.github/workflows/docker-publish.yml`) has 3 jobs:
+
+#### 1. **Lint and Test** (on Pull Requests & push to `dev`)
+- ✅ Code linting with flake8 and pylint
+- ✅ Run unit tests
+- ✅ Run integration tests
+- ✅ Run end-to-end tests
+- ✅ Generate coverage reports
+
+#### 2. **Build Validation** (on Pull Requests & push to `dev`)
+- ✅ Build Docker image (validation only, no push)
+- ✅ Verify Dockerfile correctness
+
+#### 3. **Build and Push** (only on push to `main`)
+- ✅ Build production Docker image
+- ✅ Push to DockerHub with multiple tags:
+  - `latest`
+  - `main-<git-sha>`
+  - `YYYYMMDD-HHmmss` (timestamp)
+- ✅ Update DockerHub repository
 
 ## Docker Hub
 
