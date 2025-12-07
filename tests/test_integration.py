@@ -16,7 +16,7 @@ def test_register_user(client, session):
 # Test task creation
 def test_create_task(client, sample_user, session):
     client.post('/login', data={'username': 'testuser', 'password': 'password123'})
-    response = client.post('/add', data={
+    response = client.post('/tasks/new', data={
         'title': 'New Task',
         'description': 'Test'
     }, follow_redirects=True)
@@ -29,7 +29,7 @@ def test_create_task(client, sample_user, session):
 def test_delete_task(client, sample_user, sample_task, session):
     client.post('/login', data={'username': 'testuser', 'password': 'password123'})
     task_id = sample_task.id
-    response = client.get(f'/delete/{task_id}', follow_redirects=True)
+    response = client.post(f'/tasks/{task_id}/delete', follow_redirects=True)
     assert response.status_code == 200
     deleted_task = session.query(Task).filter_by(id=task_id).first()
     assert deleted_task is None
