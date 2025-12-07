@@ -73,27 +73,15 @@ jobs:
       run: |
         pytest tests/test_integration.py -v
 
-    - name: Setup Chrome and ChromeDriver
+    - name: Setup Chrome for E2E tests
       uses: browser-actions/setup-chrome@v1
       with:
         chrome-version: stable
     
-    - name: Verify Chrome installation
+    - name: Run E2E tests
       run: |
-        which google-chrome || which chromium || which chromium-browser
-        google-chrome --version || chromium --version || chromium-browser --version
-    
-    - name: Start Flask app in background
-      run: |
-        python app.py &
-        sleep 5
-      env:
-        FLASK_ENV: development
-    
-    - name: Run e2e tests
-      run: |
-        pytest tests/test_e2e.py -v
-      continue-on-error: true
+        pytest tests/test_e2e.py -v -s
+      continue-on-error: false
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3

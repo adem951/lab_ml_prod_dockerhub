@@ -59,3 +59,43 @@ def sample_task(session, sample_user):
     session.add(task)
     session.commit()
     return task
+
+
+@pytest.fixture(scope='module')
+def live_server(app):
+    """Start Flask app for E2E tests"""
+    import subprocess
+    import time
+    import signal
+    
+    # Créer un utilisateur de test dans la base de données
+    with app.app_context():
+        _db.create_all()
+        # Vérifier si l'utilisateur existe déjà
+        existing_user = User.query.filter_by(username='testuser').first()
+        if not existing_user:
+            user = User(username='testuser')
+            user.set_password('password123')
+            _db.session.add(user)
+            _db.session.commit()
+    
+    # Démarrer Flask en subprocess
+    import sys
+    env = os.environ.copy()
+    env['FLASK_ENV'] = 'development'
+    process = subprocess.Popen(
+        [sys.executable, 'app.py'],
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    time.sleep(3)  # Attendre que le serveur démarre
+    
+    yield
+    
+    # Arrêter le serveur
+    process.terminate()
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
