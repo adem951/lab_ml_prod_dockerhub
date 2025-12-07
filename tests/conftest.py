@@ -1,5 +1,6 @@
 import os
 import pytest
+from sqlalchemy.orm import scoped_session, sessionmaker
 from app import create_app
 from extensions import db as _db
 from models import User, Task
@@ -25,12 +26,16 @@ def db(app):
 def session(db):
     connection = db.engine.connect()
     transaction = connection.begin()
-    session = db.create_scoped_session(options={"bind": connection})
+    
+    session_factory = sessionmaker(bind=connection)
+    session = scoped_session(session_factory)
+    
     db.session = session
     yield session
+    
+    session.remove()
     transaction.rollback()
     connection.close()
-    session.remove()
 
 
 @pytest.fixture
