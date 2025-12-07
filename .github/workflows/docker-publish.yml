@@ -77,11 +77,20 @@ jobs:
       run: |
         pytest tests/test_integration.py -v
 
-    - name: Run e2e tests
+    - name: Install Chrome for E2E tests
       run: |
-        # Install Chrome for Selenium tests
         sudo apt-get update
         sudo apt-get install -y chromium-browser chromium-chromedriver
+    
+    - name: Start Flask app in background
+      run: |
+        python app.py &
+        sleep 5
+      env:
+        FLASK_ENV: development
+    
+    - name: Run e2e tests
+      run: |
         pytest tests/test_e2e.py -v
 
     - name: Upload coverage reports

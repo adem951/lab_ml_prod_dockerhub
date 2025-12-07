@@ -2,6 +2,7 @@ import pytest
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 
 
 @pytest.fixture(scope='module')
@@ -9,7 +10,11 @@ def driver():
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
-    driver = webdriver.Chrome(options=options)
+    options.add_argument('--disable-dev-shm-usage')
+    options.binary_location = '/snap/bin/chromium'
+    
+    service = Service('/usr/bin/chromedriver')
+    driver = webdriver.Chrome(service=service, options=options)
     driver.implicitly_wait(10)
     yield driver
     driver.quit()
