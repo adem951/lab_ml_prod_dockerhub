@@ -1,23 +1,33 @@
 import pytest
 import time
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 
 
 @pytest.fixture(scope='module')
 def driver():
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
+    options.add_argument('--headless=new')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.binary_location = '/snap/bin/chromium'
+    options.add_argument('--disable-gpu')
+    options.add_argument('--disable-software-rasterizer')
+    options.add_argument('--remote-debugging-port=9222')
     
-    service = Service('/usr/bin/chromedriver')
-    driver = webdriver.Chrome(service=service, options=options)
-    driver.implicitly_wait(10)
-    yield driver
-    driver.quit()
+    # Essayer de détecter Chromium snap si disponible
+    if os.path.exists('/snap/bin/chromium'):
+        options.binary_location = '/snap/bin/chromium'
+    
+    try:
+        driver = webdriver.Chrome(options=options)
+        driver.implicitly_wait(10)
+        yield driver
+    finally:
+        try:
+            driver.quit()
+        except:
+            pass
 
 
 # Test 1: Login page -> login -> verify redirect
