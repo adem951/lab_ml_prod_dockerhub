@@ -11,10 +11,10 @@ env:
   PYTHON_VERSION: '3.10'
 
 jobs:
-  # Job 1: Lint and Test (runs on PR and push to dev)
+  # Job 1: Lint and Test (runs on PR and push to dev/main)
   lint-and-test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/dev'
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout code
@@ -76,10 +76,10 @@ jobs:
         flags: unittests
         name: codecov-umbrella
 
-  # Job 2: Build Docker image (validation only for PR/dev)
+  # Job 2: Build Docker image (validation for PR/dev/main)
   build-validation:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/dev'
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
     needs: lint-and-test
     
     steps:
